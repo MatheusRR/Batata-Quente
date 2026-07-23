@@ -248,10 +248,84 @@
     100%{ opacity:0; transform: scale(1.4); }
   }
 
+  .time-overlay{
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.78);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 100;
+  }
+  .time-overlay.show{ display: flex; }
+
+  .time-number{
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 800;
+    font-size: clamp(5rem, 24vw, 9rem);
+    color: #fff;
+    line-height: 1;
+    text-shadow: 0 0 24px rgba(255,140,60,0.6);
+  }
+
+  .overlay-potato{
+    font-size: clamp(6rem, 30vw, 11rem);
+    line-height: 1;
+    margin-bottom: 6px;
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin{
+    from{ transform: rotate(0deg); }
+    to{ transform: rotate(360deg); }
+  }
+
+  .time-unit{
+    margin-top: 4px;
+    font-size: 1rem;
+    color: #f0e2c9;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .burnt-panel{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap: 18px;
+  }
+
+  .burnt-panel .burnt-title{
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.6rem, 12vw, 4.5rem);
+    color: var(--red);
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+  }
+
+  .play-again-btn{
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--white);
+    background: var(--green);
+    border: none;
+    padding: 12px 28px;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #245319;
+  }
+  .play-again-btn:active{
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #245319;
+  }
+
   @media (prefers-reduced-motion: reduce){
     .potato-btn.playing .potato-shape{ animation: none; }
     .status.queimou{ animation: none; }
     .burst.show{ animation: none; }
+    .overlay-potato{ animation: none; }
   }
 </style>
 </head>
@@ -284,6 +358,18 @@
 
 <div class="burst" id="burst">🔥</div>
 
+<div class="time-overlay" id="timeOverlay" aria-live="polite">
+  <div id="countingView">
+    <div class="overlay-potato">🥔</div>
+    <div class="time-number" id="timeNumber">0</div>
+    <div class="time-unit">segundos</div>
+  </div>
+  <div class="burnt-panel" id="burntPanel" hidden>
+    <div class="burnt-title">QUEIMOU! 🔥</div>
+    <button id="playAgainBtn" class="play-again-btn">Jogar novamente</button>
+  </div>
+</div>
+
 <script>
   // build bunting flags
   const row = document.getElementById('buntingRow');
@@ -296,10 +382,16 @@
   const burst = document.getElementById('burst');
   const card = document.querySelector('.card');
   const maxTimeInput = document.getElementById('maxTime');
+  const timeOverlay = document.getElementById('timeOverlay');
+  const countingView = document.getElementById('countingView');
+  const timeNumber = document.getElementById('timeNumber');
+  const burntPanel = document.getElementById('burntPanel');
+  const playAgainBtn = document.getElementById('playAgainBtn');
 
   let playing = false;
   let stopRequested = false;
   let ptVoice = null;
+  let counterInterval = null;
 
   function clampMaxTime(){
     let v = parseInt(maxTimeInput.value, 10);
@@ -368,6 +460,16 @@
     const startTime = Date.now();
     const heatRamp = maxSeconds * 1000; // referência visual de "esquentando"
 
+    // abre a tela escura com o contador de segundos
+    burntPanel.hidden = true;
+    countingView.style.display = '';
+    timeNumber.textContent = '0';
+    timeOverlay.classList.add('show');
+    counterInterval = setInterval(() => {
+      const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+      timeNumber.textContent = elapsedSeconds;
+    }, 250);
+
     speechSynthesis.cancel();
 
     await speak('Batata quente, quente, quente', 1.1, 1.15);
@@ -384,12 +486,15 @@
 
     if(!stopRequested){
       setHeat(1);
+      clearInterval(counterInterval);
       btn.classList.remove('playing');
       btn.classList.add('burnt');
       status.textContent = 'QUEIMOU!';
       status.classList.add('queimou');
       hint.textContent = 'Quem estava com ela pagou a prenda 😅';
       burst.classList.add('show');
+      countingView.style.display = 'none';
+      burntPanel.hidden = false;
       await speak('Queimou!', 0.95, 0.9);
       setTimeout(() => burst.classList.remove('show'), 600);
     }
@@ -401,6 +506,11 @@
   }
 
   btn.addEventListener('click', () => {
+    if(playing) return;
+    startRound();
+  });
+
+  playAgainBtn.addEventListener('click', () => {
     if(playing) return;
     startRound();
   });
