@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Batata Quente 🥔🔥</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --red: #C1121F;
+    --white: #FFF7EC;
+    --yellow: #F7B801;
+    --green: #3A7D2C;
+    --wood: #2B1B12;
+    --wood-light: #4A3122;
+    --potato: #C68958;
+    --potato-dark: #8B5E3C;
+    --heat: 0;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html,body{
+    margin:0;
+    min-height:100vh;
+    background: var(--wood);
+    font-family: 'Nunito', sans-serif;
+    overflow-x:hidden;
+  }
+
+  /* Bandeirinhas / bunting */
+  .bunting{
+    display:flex;
+    justify-content:center;
+    padding-top: 18px;
+    user-select:none;
+    pointer-events:none;
+  }
+  .bunting ul{
+    list-style:none;
+    display:flex;
+    margin:0; padding:0;
+    border-top: 3px solid #d9c9a3;
+    width: min(720px, 92vw);
+  }
+  .bunting li{
+    width: 40px;
+    height: 52px;
+    margin-top: -2px;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    flex: 1 1 auto;
+  }
+  .bunting li:nth-child(6n+1){ background: var(--red); }
+  .bunting li:nth-child(6n+2){ background: var(--yellow); }
+  .bunting li:nth-child(6n+3){ background: var(--green); }
+  .bunting li:nth-child(6n+4){ background: var(--white); }
+  .bunting li:nth-child(6n+5){ background: var(--red); }
+  .bunting li:nth-child(6n+6){ background: var(--yellow); }
+
+  .tablecloth{
+    min-height: calc(100vh - 90px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 24px;
+    background-color: var(--white);
+    background-image:
+      repeating-linear-gradient(0deg, rgba(193,18,31,0.5) 0 18px, transparent 18px 36px),
+      repeating-linear-gradient(90deg, rgba(193,18,31,0.5) 0 18px, transparent 18px 36px);
+  }
+
+  .card{
+    background: var(--wood-light);
+    border-radius: 28px;
+    padding: 40px 32px 34px;
+    width: min(420px, 100%);
+    text-align:center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+    border: 4px solid #1a0f09;
+  }
+
+  h1{
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 800;
+    font-size: 2.3rem;
+    color: var(--yellow);
+    margin: 0 0 6px;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.35);
+    letter-spacing: 0.5px;
+  }
+
+  .subtitle{
+    color: #f0e2c9;
+    font-size: 0.98rem;
+    margin: 0 0 30px;
+    line-height:1.4;
+  }
+
+  .potato-btn{
+    --shake: 0deg;
+    position:relative;
+    width: 190px;
+    height: 170px;
+    border: none;
+    cursor:pointer;
+    background: transparent;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap: 6px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .potato-shape{
+    width: 150px;
+    height: 130px;
+    border-radius: 58% 42% 55% 45% / 48% 55% 45% 52%;
+    background: radial-gradient(circle at 35% 30%, var(--potato) 0%, var(--potato-dark) 75%);
+    filter: hue-rotate(calc(var(--heat) * -18deg)) saturate(calc(1 + var(--heat) * 1.6)) brightness(calc(1 + var(--heat) * 0.15));
+    box-shadow: 0 8px 0 rgba(0,0,0,0.3), inset -8px -10px 20px rgba(0,0,0,0.25), inset 8px 10px 16px rgba(255,255,255,0.15);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size: 2.4rem;
+    transform: rotate(var(--shake));
+    transition: filter 0.4s ease;
+  }
+
+  .potato-btn.playing .potato-shape{
+    animation: shake 0.28s infinite;
+  }
+
+  @keyframes shake{
+    0%{ transform: rotate(-4deg) translate(0,0); }
+    50%{ transform: rotate(4deg) translate(2px,-2px); }
+    100%{ transform: rotate(-4deg) translate(0,0); }
+  }
+
+  .potato-btn.burnt .potato-shape{
+    filter: grayscale(0.4) brightness(0.5);
+    animation: none;
+  }
+
+  .label{
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--white);
+    background: var(--red);
+    padding: 8px 22px;
+    border-radius: 999px;
+    box-shadow: 0 4px 0 #7a0c14;
+  }
+
+  .potato-btn:active .label{
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #7a0c14;
+  }
+
+  .potato-btn:disabled{ cursor: default; }
+
+  .status{
+    margin-top: 22px;
+    min-height: 34px;
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 1.4rem;
+    color: var(--yellow);
+    letter-spacing: 1px;
+  }
+
+  .status.queimou{
+    color: var(--red);
+    font-size: 1.9rem;
+    animation: pop 0.4s ease;
+  }
+
+  @keyframes pop{
+    0%{ transform: scale(0.4); opacity:0; }
+    70%{ transform: scale(1.15); opacity:1; }
+    100%{ transform: scale(1); }
+  }
+
+  .hint{
+    margin-top: 14px;
+    font-size: 0.8rem;
+    color: #cbb897;
+  }
+
+  .time-field{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 10px;
+    margin: 0 0 26px;
+  }
+
+  .time-field label{
+    font-size: 0.85rem;
+    color: #f0e2c9;
+  }
+
+  .time-field input{
+    width: 64px;
+    text-align:center;
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--wood);
+    background: var(--yellow);
+    border: none;
+    border-radius: 10px;
+    padding: 6px 4px;
+    box-shadow: inset 0 -3px 0 rgba(0,0,0,0.2);
+  }
+
+  .time-field input:focus{
+    outline: 3px solid var(--red);
+    outline-offset: 2px;
+  }
+
+  .time-field input:disabled{
+    opacity: 0.6;
+  }
+
+  .time-field span.unit{
+    font-size: 0.85rem;
+    color: #f0e2c9;
+  }
+
+  .burst{
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size: 6rem;
+    opacity: 0;
+  }
+  .burst.show{
+    animation: flash 0.6s ease;
+  }
+  @keyframes flash{
+    0%{ opacity:0; transform: scale(0.5); }
+    30%{ opacity:1; transform: scale(1.2); }
+    100%{ opacity:0; transform: scale(1.4); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .potato-btn.playing .potato-shape{ animation: none; }
+    .status.queimou{ animation: none; }
+    .burst.show{ animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bunting">
+  <ul id="buntingRow"></ul>
+</div>
+
+<div class="tablecloth">
+  <main class="card">
+    <h1>Batata Quente</h1>
+    <p class="subtitle">Aperte a batata pra começar a cantiga. Ela passa de mão em mão até queimar — ninguém sabe quando!</p>
+
+    <div class="time-field">
+      <label for="maxTime">Tempo máximo</label>
+      <input type="number" id="maxTime" inputmode="numeric" min="5" max="30" step="1" value="30">
+      <span class="unit">seg (máx. 30)</span>
+    </div>
+
+    <button id="potatoBtn" class="potato-btn" aria-label="Começar rodada">
+      <div class="potato-shape">🥔</div>
+      <span class="label" id="labelText">Começar</span>
+    </button>
+
+    <div class="status" id="status" aria-live="polite"></div>
+    <p class="hint" id="hint">Toque para iniciar a cantiga</p>
+  </main>
+</div>
+
+<div class="burst" id="burst">🔥</div>
+
+<script>
+  // build bunting flags
+  const row = document.getElementById('buntingRow');
+  for(let i=0;i<14;i++){ row.appendChild(document.createElement('li')); }
+
+  const btn = document.getElementById('potatoBtn');
+  const label = document.getElementById('labelText');
+  const status = document.getElementById('status');
+  const hint = document.getElementById('hint');
+  const burst = document.getElementById('burst');
+  const card = document.querySelector('.card');
+  const maxTimeInput = document.getElementById('maxTime');
+
+  let playing = false;
+  let stopRequested = false;
+  let ptVoice = null;
+
+  function clampMaxTime(){
+    let v = parseInt(maxTimeInput.value, 10);
+    if(isNaN(v)) v = 30;
+    v = Math.min(30, Math.max(5, v));
+    maxTimeInput.value = v;
+    return v;
+  }
+
+  maxTimeInput.addEventListener('input', () => {
+    // impede qualquer caractere não numérico durante a digitação
+    maxTimeInput.value = maxTimeInput.value.replace(/[^0-9]/g, '');
+  });
+  maxTimeInput.addEventListener('blur', clampMaxTime);
+  maxTimeInput.addEventListener('change', clampMaxTime);
+
+  function loadVoice(){
+    const voices = speechSynthesis.getVoices();
+    ptVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('pt')) || null;
+  }
+  loadVoice();
+  if('onvoiceschanged' in speechSynthesis){
+    speechSynthesis.onvoiceschanged = loadVoice;
+  }
+
+  function speak(text, rate, pitch){
+    return new Promise(resolve => {
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'pt-BR';
+      if(ptVoice) utter.voice = ptVoice;
+      utter.rate = rate || 1.15;
+      utter.pitch = pitch || 1.15;
+      utter.onend = resolve;
+      utter.onerror = resolve;
+      speechSynthesis.speak(utter);
+    });
+  }
+
+  function setHeat(v){
+    card.style.setProperty('--heat', Math.min(v, 1).toFixed(2));
+  }
+
+  async function startRound(){
+    if(playing) return;
+    if(!('speechSynthesis' in window)){
+      status.textContent = 'Seu navegador não suporta áudio de fala.';
+      return;
+    }
+
+    const maxSeconds = clampMaxTime();
+    const minSeconds = Math.min(5, maxSeconds);
+
+    playing = true;
+    stopRequested = false;
+    btn.classList.remove('burnt');
+    btn.classList.add('playing');
+    btn.disabled = true;
+    maxTimeInput.disabled = true;
+    label.textContent = 'Passa, passa...';
+    hint.textContent = 'A batata está esquentando...';
+    status.textContent = '';
+    status.classList.remove('queimou');
+    setHeat(0);
+
+    const duration = minSeconds * 1000 + Math.random() * ((maxSeconds - minSeconds) * 1000);
+    const startTime = Date.now();
+    const heatRamp = maxSeconds * 1000; // referência visual de "esquentando"
+
+    speechSynthesis.cancel();
+
+    await speak('Batata quente, quente, quente', 1.1, 1.15);
+    status.textContent = 'quente!';
+
+    while(Date.now() - startTime < duration && !stopRequested){
+      const progress = Math.min((Date.now() - startTime) / duration, 1);
+      setHeat((Date.now() - startTime) / heatRamp);
+      const rate = 1.2 + progress * 1.6; // acelera de 1.2x até 2.8x perto do fim
+      const pitch = 1.1 + progress * 0.5;
+      await speak('quente', rate, pitch);
+      status.textContent = 'quente!';
+    }
+
+    if(!stopRequested){
+      setHeat(1);
+      btn.classList.remove('playing');
+      btn.classList.add('burnt');
+      status.textContent = 'QUEIMOU!';
+      status.classList.add('queimou');
+      hint.textContent = 'Quem estava com ela pagou a prenda 😅';
+      burst.classList.add('show');
+      await speak('Queimou!', 0.95, 0.9);
+      setTimeout(() => burst.classList.remove('show'), 600);
+    }
+
+    playing = false;
+    btn.disabled = false;
+    maxTimeInput.disabled = false;
+    label.textContent = 'Jogar de novo';
+  }
+
+  btn.addEventListener('click', () => {
+    if(playing) return;
+    startRound();
+  });
+</script>
+
+</body>
+</html>
